@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="container narrow">
+    <a class="back" href="/">← Kembali ke daftar</a>
+    <section class="panel form-panel">
+      <p class="eyebrow">FORM PENYEWAAN</p>
+      <h1><%= title %></h1>
+      <p class="muted">Lengkapi informasi penyewa dan jadwal lapangan.</p>
+
+      <% if (errors.length) { %>
+        <div class="alert error">
+          <strong>Periksa kembali data berikut:</strong>
+          <ul><% errors.forEach(error => { %><li><%= error %></li><% }) %></ul>
+        </div>
+      <% } %>
+
+      <form action="<%= action %>" method="POST" class="booking-form">
+        <label>Nama Penyewa
+          <input type="text" name="nama_penyewa" value="<%= p.nama_penyewa || '' %>" required>
+        </label>
+        <label>Nomor HP
+          <input type="text" name="no_hp" value="<%= p.no_hp || '' %>" placeholder="Contoh: 081234567890" required>
+        </label>
+        <label>Lapangan
+          <select name="lapangan" id="lapangan" required>
+            <option value="">-- Pilih Lapangan --</option>
+            <% Object.keys(TARIF).forEach(nama => { %>
+              <option value="<%= nama %>" <%= p.lapangan === nama ? 'selected' : '' %>><%= nama %> - Rp <%= TARIF[nama].toLocaleString('id-ID') %>/jam</option>
+            <% }) %>
+          </select>
+        </label>
+        <div class="two">
+          <label>Tanggal
+            <input type="date" name="tanggal" value="<%= p.tanggal || '' %>" required>
+          </label>
+          <label>Jam Mulai
+            <select name="jam_mulai" required>
+              <% for (let jam = JAM_BUKA; jam < JAM_TUTUP; jam++) { %>
+                <option value="<%= jam %>" <%= Number(p.jam_mulai) === jam ? 'selected' : '' %>><%= String(jam).padStart(2, '0') %>:00</option>
+              <% } %>
+            </select>
+          </label>
+        </div>
+        <div class="two">
+          <label>Durasi
+            <select name="durasi" id="durasi" required>
+              <% for (let d = 1; d <= 4; d++) { %>
+                <option value="<%= d %>" <%= Number(p.durasi || 1) === d ? 'selected' : '' %>><%= d %> jam</option>
+              <% } %>
+            </select>
+          </label>
+          <label>Status
+            <select name="status" required>
+              <% STATUS.forEach(s => { %>
+                <option value="<%= s %>" <%= (p.status || 'Menunggu') === s ? 'selected' : '' %>><%= s %></option>
+              <% }) %>
+            </select>
+          </label>
+        </div>
+        <div class="price-box">Total harga: <strong id="total">Rp 0</strong></div>
+        <div class="form-actions">
+          <a class="button light" href="/">Batal</a>
+          <button class="button" type="submit">Simpan Booking</button>
+        </div>
+      </form>
+    </section>
+  </main>
+  <script>
+    const tarif = <%- JSON.stringify(TARIF) %>;
+    const lapangan = document.getElementById('lapangan');
+    const durasi = document.getElementById('durasi');
+    const total = document.getElementById('total');
+
+    function hitungTotal() {
+      const harga = tarif[lapangan.value] || 0;
+      const jumlahJam = Number(durasi.value) || 0;
+      total.textContent = 'Rp ' + (harga * jumlahJam).toLocaleString('id-ID');
+    }
+
+    lapangan.addEventListener('change', hitungTotal);
+    durasi.addEventListener('change', hitungTotal);
+    hitungTotal();
+  </script>
+</body>
+</html>

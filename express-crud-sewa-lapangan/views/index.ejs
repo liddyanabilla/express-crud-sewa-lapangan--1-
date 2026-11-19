@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Penyewaan Lapangan</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="container">
+    <header class="top">
+      <div>
+        <p class="eyebrow">SISTEM INFORMASI</p>
+        <h1>Penyewaan Lapangan</h1>
+        <p class="muted">Kelola data booking lapangan dengan mudah.</p>
+      </div>
+      <a class="button" href="/penyewaan/new">+ Tambah Booking</a>
+    </header>
+
+    <% if (flash) { %>
+      <div class="alert success"><%= flash %></div>
+    <% } %>
+
+    <section class="stats">
+      <article class="stat"><span>Total Booking</span><strong><%= stat.total %></strong></article>
+      <article class="stat"><span>Pendapatan Lunas</span><strong>Rp <%= Number(stat.pendapatan).toLocaleString('id-ID') %></strong></article>
+      <article class="stat"><span>Menunggu Pembayaran</span><strong><%= stat.menunggu %></strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>Daftar Penyewaan</h2><p class="muted">Data seluruh pemesanan lapangan.</p></div>
+        <form class="search" action="/" method="GET">
+          <input type="text" name="q" placeholder="Cari nama, lapangan, atau HP..." value="<%= q %>">
+          <button class="button secondary" type="submit">Cari</button>
+          <% if (q) { %><a class="button light" href="/">Reset</a><% } %>
+        </form>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nama Penyewa</th><th>No. HP</th><th>Lapangan</th><th>Tanggal</th>
+              <th>Waktu</th><th>Total Harga</th><th>Status</th><th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (list.length === 0) { %>
+              <tr><td colspan="8" class="empty">Belum ada data penyewaan.</td></tr>
+            <% } %>
+            <% list.forEach(item => { %>
+              <tr>
+                <td><strong><%= item.nama_penyewa %></strong></td>
+                <td><%= item.no_hp %></td>
+                <td><%= item.lapangan %></td>
+                <td><%= item.tanggal %></td>
+                <td><%= String(item.jam_mulai).padStart(2, '0') %>:00 - <%= String(item.jam_mulai + item.durasi).padStart(2, '0') %>:00</td>
+                <td>Rp <%= Number(item.total_harga).toLocaleString('id-ID') %></td>
+                <td><span class="status <%= item.status.toLowerCase() %>"><%= item.status %></span></td>
+                <td class="actions">
+                  <a class="button small secondary" href="/penyewaan/<%= item.id %>/edit">Edit</a>
+                  <form action="/penyewaan/<%= item.id %>/delete" method="POST" onsubmit="return confirm('Yakin ingin menghapus booking ini?')">
+                    <button class="button small danger" type="submit">Hapus</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <p class="footnote">Aplikasi CRUD Penyewaan Lapangan · Express.js + EJS + SQLite</p>
+  </main>
+</body>
+</html>
